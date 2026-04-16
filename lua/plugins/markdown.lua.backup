@@ -1,0 +1,513 @@
+-- ============================================================================
+-- Markdown 配置文件
+-- 使用 render-markdown.nvim 美化 Markdown 显示
+-- 包含：渲染美化、LSP 支持、链接打开、自定义折叠
+-- GitHub: MeanderingProgrammer/render-markdown.nvim
+-- ============================================================================
+
+
+return {
+	"MeanderingProgrammer/render-markdown.nvim",
+
+	-- ========================================================================
+	-- 依赖插件
+	-- ========================================================================
+	dependencies = {
+		"nvim-treesitter/nvim-treesitter",
+		"nvim-tree/nvim-web-devicons",
+	},
+
+
+	-- ========================================================================
+	-- 插件配置
+	-- ========================================================================
+	config = function()
+		-- ================================================================
+		-- 自定义 render-markdown 标题颜色（适配 deus 主题）
+		-- ================================================================
+-- 标题前景色
+-- vim.api.nvim_set_hl(0, 'RenderMarkdownH1', { fg = '#c9d1d9', bold = true })  -- 浅灰白
+-- vim.api.nvim_set_hl(0, 'RenderMarkdownH2', { fg = '#e5c07b', bold = true })  -- 黄色
+-- vim.api.nvim_set_hl(0, 'RenderMarkdownH3', { fg = '#98c379', bold = true })  -- 绿色
+-- vim.api.nvim_set_hl(0, 'RenderMarkdownH4', { fg = '#56b6c2', bold = true })  -- 青色
+-- vim.api.nvim_set_hl(0, 'RenderMarkdownH5', { fg = '#61afef', bold = true })  -- 蓝色
+-- vim.api.nvim_set_hl(0, 'RenderMarkdownH6', { fg = '#c678dd', bold = true })  -- 紫色
+
+-- 标题背景色
+-- vim.api.nvim_set_hl(0, 'RenderMarkdownH1Bg', { bg = '#2c323c' })  -- 深灰
+-- vim.api.nvim_set_hl(0, 'RenderMarkdownH2Bg', { bg = '#3e3529' })  -- 深黄棕
+-- vim.api.nvim_set_hl(0, 'RenderMarkdownH3Bg', { bg = '#2e3b2e' })  -- 深绿
+-- vim.api.nvim_set_hl(0, 'RenderMarkdownH4Bg', { bg = '#253535' })  -- 深青
+-- vim.api.nvim_set_hl(0, 'RenderMarkdownH5Bg', { bg = '#2b3544' })  -- 深蓝
+-- vim.api.nvim_set_hl(0, 'RenderMarkdownH6Bg', { bg = '#352b40' })  -- 深紫
+
+		-- ====================================================================
+		-- render-markdown 主配置
+		-- ====================================================================
+		require("render-markdown").setup({
+			-- ================================================================
+			-- 标题配置
+			-- ================================================================
+			heading = {
+				-- 各级标题图标（1-6 级）
+				icons = { " 󰼏 ", " 󰎨 ", " 󰼑 ", " 󰎲 ", " 󰼓 ", " 󰎴 " },
+				border = true,             -- 显示标题边框
+				render_modes = false,       -- 插入模式下也保持渲染
+				enabled = true,
+				atx = true,
+				setext = true,
+				sign = true,
+				-- Highlight for the heading icon and extends through the entire line.
+				-- Output is evaluated by `clamp(value, context.level)`.
+				backgrounds = {
+					'RenderMarkdownH1Bg',
+					'RenderMarkdownH2Bg',
+					'RenderMarkdownH3Bg',
+					'RenderMarkdownH4Bg',
+					'RenderMarkdownH5Bg',
+					'RenderMarkdownH6Bg',
+				},
+				-- Highlight for the heading and sign icons.
+				-- Output is evaluated using the same logic as 'backgrounds'.
+				foregrounds = {
+					'RenderMarkdownH1',
+					'RenderMarkdownH2',
+					'RenderMarkdownH3',
+					'RenderMarkdownH4',
+					'RenderMarkdownH5',
+					'RenderMarkdownH6',
+				},
+			},
+
+			-- ================================================================
+			-- Callout（提示框）配置
+			-- 支持 Obsidian 和 GitHub 风格的提示框
+			-- 语法：> [!TYPE] 内容
+			-- ================================================================
+			callout = {
+				abstract = { raw = "[!ABSTRACT]", rendered = "󰯂 Abstract", highlight = "RenderMarkdownInfo", category = "obsidian" },
+				summary = { raw = "[!SUMMARY]", rendered = "󰯂 Summary", highlight = "RenderMarkdownInfo", category = "obsidian" },
+				tldr = { raw = "[!TLDR]", rendered = "󰦩 Tldr", highlight = "RenderMarkdownInfo", category = "obsidian" },
+				failure = { raw = "[!FAILURE]", rendered = " Failure", highlight = "RenderMarkdownError", category = "obsidian" },
+				fail = { raw = "[!FAIL]", rendered = " Fail", highlight = "RenderMarkdownError", category = "obsidian" },
+				missing = { raw = "[!MISSING]", rendered = " Missing", highlight = "RenderMarkdownError", category = "obsidian" },
+				danger = { raw = "[!DANGER]", rendered = " Danger", highlight = "RenderMarkdownError", category = "obsidian" },
+				error = { raw = "[!ERROR]", rendered = " Error", highlight = "RenderMarkdownError", category = "obsidian" },
+				bug = { raw = "[!BUG]", rendered = " Bug", highlight = "RenderMarkdownError", category = "obsidian" },
+				attention = { raw = "[!ATTENTION]", rendered = " Attention", highlight = "RenderMarkdownWarn", category = "obsidian" },
+				warning = { raw = "[!WARNING]", rendered = " Warning", highlight = "RenderMarkdownWarn", category = "github" },
+				quote = { raw = "[!QUOTE]", rendered = " Quote", highlight = "RenderMarkdownQuote", category = "obsidian" },
+				cite = { raw = "[!CITE]", rendered = " Cite", highlight = "RenderMarkdownQuote", category = "obsidian" },
+				todo = { raw = "[!TODO]", rendered = " Todo", highlight = "RenderMarkdownInfo", category = "obsidian" },
+				wip = { raw = "[!WIP]", rendered = "󰦖 WIP", highlight = "RenderMarkdownHint", category = "obsidian" },
+				done = { raw = "[!DONE]", rendered = " Done", highlight = "RenderMarkdownSuccess", category = "obsidian" },
+			},
+
+			-- ================================================================
+			-- 符号列配置（左侧标记列）
+			-- ================================================================
+			sign = { enabled = false },  -- 禁用左侧符号标记
+
+			-- ================================================================
+			-- 代码块配置
+			-- ================================================================
+			code = {
+				width = "block",           -- 代码块宽度：只包围代码内容
+				min_width = 80,            -- 最小宽度 80 字符
+				border = "thin",           -- 细边框
+				left_pad = 1,              -- 左内边距
+				right_pad = 1,             -- 右内边距
+				position = "right",        -- 语言标签在右侧
+				language_icon = true,      -- 显示语言图标
+				language_name = true,      -- 显示语言名称
+				highlight_inline = "RenderMarkdownCodeInfo",  -- 行内代码高亮组
+			},
+
+
+
+			-- ================================================================
+			-- 复选框配置
+			-- ================================================================
+			checkbox = {
+				-- 未选中 [ ]
+				unchecked = {
+					icon = "󰄱",
+					highlight = "RenderMarkdownCodeFallback",
+					scope_highlight = "RenderMarkdownCodeFallback",
+				},
+				-- 已选中 [x]
+				checked = {
+					icon = "󰄵",
+					highlight = "RenderMarkdownUnchecked",
+					scope_highlight = "RenderMarkdownUnchecked",
+				},
+				-- 自定义复选框状态
+				custom = {
+					-- [?] 疑问
+					question = {
+						raw = "[?]", rendered = "",
+						highlight = "RenderMarkdownError",
+						scope_highlight = "RenderMarkdownError",
+					},
+					-- [>] 待办/进行中
+					todo = {
+						raw = "[>]", rendered = "󰦖",
+						highlight = "RenderMarkdownInfo",
+						scope_highlight = "RenderMarkdownInfo",
+					},
+					-- [-] 已取消
+					canceled = {
+						raw = "[-]", rendered = "",
+						highlight = "RenderMarkdownCodeFallback",
+						scope_highlight = "@text.strike",  -- 删除线效果
+					},
+					-- [!] 重要
+					important = {
+						raw = "[!]", rendered = "",
+						highlight = "RenderMarkdownWarn",
+						scope_highlight = "RenderMarkdownWarn",
+					},
+					-- [~] 收藏
+					favorite = {
+						raw = "[~]", rendered = "",
+						highlight = "RenderMarkdownMath",
+						scope_highlight = "RenderMarkdownMath",
+					},
+				},
+			},
+
+			-- ================================================================
+			-- 表格配置
+			-- ================================================================
+			pipe_table = {
+				alignment_indicator = "─",  -- 对齐指示符
+				-- 圆角边框字符
+				border = { "╭", "┬", "╮", "├", "┼", "┤", "╰", "┴", "╯", "│", "─" },
+			},
+
+			-- ================================================================
+			-- 链接配置
+			-- ================================================================
+			link = {
+				-- Wiki 链接（[[link]] 语法）
+				wiki = { icon = " ", highlight = "RenderMarkdownWikiLink", scope_highlight = "RenderMarkdownWikiLink" },
+				image = " ",        -- 图片链接图标
+				hyperlink = " ",    -- 普通链接图标
+				-- 自定义链接图标（根据 URL 匹配）
+				custom = {
+					github = { pattern = "github", icon = " " },
+					gitlab = { pattern = "gitlab", icon = "󰮠 " },
+					youtube = { pattern = "youtube", icon = " " },
+					cern = { pattern = "cern.ch", icon = " " },
+				},
+			},
+
+			-- ================================================================
+			-- 反并发配置（控制何时显示原始 Markdown）
+			-- ================================================================
+			anti_conceal = {
+				ignore = {
+					head_border = true,       -- 忽略标题边框
+					head_background = true,   -- 忽略标题背景
+				},
+			},
+
+			-- ================================================================
+			-- 窗口选项
+			-- ================================================================
+			-- concealcursor: 控制光标所在行的并发行为
+			-- "vc" = 在可视模式和命令模式下保持并发
+			win_options = { concealcursor = { rendered = "vc" } },
+
+			-- ================================================================
+			-- 补全集成
+			-- ================================================================
+			completions = {
+				blink = { enabled = true },  -- blink.cmp 集成
+				lsp = { enabled = true },    -- LSP 补全集成
+			},
+		})
+
+		-- ====================================================================
+		-- Markdown 文件专用设置（使用 autocmd）
+		-- ====================================================================
+		vim.api.nvim_create_autocmd("FileType", {
+			pattern = "markdown",
+			callback = function()
+				-- ============================================================
+				-- 基本选项
+				-- ============================================================
+				vim.opt_local.wrap = false       -- 禁用自动换行
+				vim.opt_local.conceallevel = 2   -- 启用文本隐藏（用于渲染）
+				vim.treesitter.start()           -- 启用 treesitter 高亮
+
+				-- ============================================================
+				-- 启用 Marksman LSP
+				-- Marksman 是专门用于 Markdown 的 LSP 服务器
+				-- 提供：链接补全、标题导航、引用查找等功能
+				-- 安装：brew install marksman 或 cargo install marksman
+				-- ============================================================
+				vim.lsp.enable('marksman')
+
+				-- ============================================================
+				-- 快捷键：gx - 智能打开 Markdown 链接
+				-- ============================================================
+				-- 功能说明：
+				-- 当光标在 Markdown 链接 [text](url) 上时，
+				-- 按 gx 可以在浏览器中打开 url
+				--
+				-- 工作原理：
+				-- 1. 获取当前行内容和光标位置
+				-- 2. 扫描行中的所有 [text](url) 模式
+				-- 3. 如果光标在某个链接的范围内，提取并打开 URL
+				-- 4. 如果不在链接上，回退到 Vim 默认的 gx 行为
+				--
+				-- 示例：
+				-- [GitHub](https://github.com)
+				--    ↑ 光标在这里，按 gx 打开 https://github.com
+				-- ============================================================
+				vim.keymap.set('n', 'gx', function()
+					-- 获取当前行内容
+					local line = vim.fn.getline('.')
+					-- 获取光标所在列（1-indexed）
+					local cursor_col = vim.fn.col('.')
+					-- 扫描位置指针
+					local pos = 1
+
+					-- 遍历行中的所有可能链接
+					while pos <= #line do
+						-- 查找 [ 的位置（链接文本开始）
+						local open_bracket = line:find('%[', pos)
+						if not open_bracket then break end
+
+						-- 查找 ] 的位置（链接文本结束）
+						local close_bracket = line:find('%]', open_bracket + 1)
+						if not close_bracket then break end
+
+						-- 查找 ( 的位置（URL 开始）
+						local open_paren = line:find('%(', close_bracket + 1)
+						if not open_paren then break end
+
+						-- 查找 ) 的位置（URL 结束）
+						local close_paren = line:find('%)', open_paren + 1)
+						if not close_paren then break end
+
+						-- 检查光标是否在链接范围内
+						-- 范围包括：[text] 部分或 (url) 部分
+						if (cursor_col >= open_bracket and cursor_col <= close_bracket)
+							or (cursor_col >= open_paren and cursor_col <= close_paren) then
+							-- 提取 URL（括号内的内容）
+							local url = line:sub(open_paren + 1, close_paren - 1)
+							-- 使用系统默认程序打开 URL
+							vim.ui.open(url)
+							return
+						end
+
+						-- 移动到下一个可能的链接
+						pos = close_paren + 1
+					end
+
+					-- 如果不在链接上，使用默认的 gx 行为
+					vim.cmd('normal! gx')
+				end, { buffer = true, desc = 'Smart URL opener for Markdown' })
+
+				-- ============================================================
+				-- 自定义折叠文本显示函数
+				-- ============================================================
+				-- 功能说明：
+				-- 当折叠 Markdown 标题时，显示美化后的折叠文本
+				-- 保留 render-markdown 的高亮效果
+				--
+				-- 效果示例：
+				-- 折叠前：
+				--   ## Section Title
+				--     content line 1
+				--     content line 2
+				-- 折叠后：
+				--   ◆ Section Title ════════════════════════════════
+				-- ============================================================
+
+				-- 辅助函数：将字符串填充到行尾
+				-- @param str: 原始字符串
+				-- @return: 填充空格后的字符串（与窗口等宽）
+				local function pad_to_eol(str)
+					local win_width = vim.api.nvim_win_get_width(0)  -- 获取窗口宽度
+					local str_width = vim.fn.strdisplaywidth(str)   -- 获取字符串显示宽度
+					local spaces_needed = win_width - str_width     -- 计算需要填充的空格数
+
+					if spaces_needed > 0 then
+						return str .. string.rep(' ', spaces_needed)
+					else
+						return str
+					end
+				end
+
+				-- 辅助函数：生成带有正确高亮的折叠虚拟文本
+				-- @param result: 结果表（用于存储虚拟文本片段）
+				-- @param start_text: 折叠行的原始文本
+				-- @param lnum: 行号（0-indexed）
+				--
+				-- 工作原理：
+				-- 1. 获取 render-markdown 的 extmark 高亮
+				-- 2. 获取 Treesitter 的语法高亮
+				-- 3. 合并两种高亮（前景色用 TS，背景色用 extmark）
+				-- 4. 返回带有合并高亮的虚拟文本
+				local function fold_virt_text(result, start_text, lnum)
+					-- 获取 render-markdown 的命名空间 ID
+					local ns_id = vim.api.nvim_get_namespaces()['render-markdown.nvim']
+
+					-- 获取该行的所有 extmark（render-markdown 创建的）
+					local extmarks = vim.api.nvim_buf_get_extmarks(
+						0,                    -- 当前 buffer
+						ns_id,                -- 命名空间
+						{ lnum, 0 },          -- 起始位置
+						{ lnum, 0 },          -- 结束位置
+						{ details = true }    -- 包含详细信息
+					)
+
+					-- 提取 extmark 的高亮组
+					local details = extmarks[#extmarks][4] or {}
+					local ext_hl_str
+					if details then
+						ext_hl_str = details.hl_group
+					end
+
+					-- 获取 Treesitter 的语法高亮
+					local captured_highlights = vim.treesitter.get_captures_at_pos(0, lnum, 0)
+					local ts_hl_str = '@' .. captured_highlights[#captured_highlights].capture .. '.markdown'
+					ts_hl_str = vim.api.nvim_get_hl(0, { name = ts_hl_str, link = true }).link
+
+					-- 获取实际的高亮定义
+					local ext_hl = vim.api.nvim_get_hl(0, { name = ext_hl_str })
+					local ts_hl = vim.api.nvim_get_hl(0, { name = ts_hl_str })
+
+					-- 创建合并高亮组
+					-- 前景色来自 Treesitter，背景色来自 render-markdown
+					vim.api.nvim_set_hl(0, 'MyMergedHL', { fg = ts_hl.fg, bg = ext_hl.bg })
+					vim.api.nvim_set_hl(0, 'MyInvertMergeHL', { fg = ext_hl.bg, bg = nil })
+
+					-- 将结果添加到表中
+					table.insert(result, { pad_to_eol(start_text), 'MyMergedHL' })
+				end
+
+				-- 全局折叠文本函数
+				-- 被 vim.opt.foldtext 调用
+				-- @return: 虚拟文本数组 { {text, highlight}, ... }
+				_G.markdown_foldtext = function()
+					-- 获取折叠起始行的内容
+					local start_text = vim.fn.getline(vim.v.foldstart)
+					-- 将 Tab 转换为空格（保持对齐）
+					start_text = start_text:gsub('\t', string.rep(' ', vim.o.tabstop))
+
+					local result = {}
+					-- 生成带高亮的折叠文本
+					fold_virt_text(result, start_text, vim.v.foldstart - 1)
+					return result
+				end
+
+				-- 设置折叠文本函数
+				vim.opt_local.foldtext = 'v:lua.markdown_foldtext()'
+				-- 设置折叠相关的填充字符
+				vim.opt_local.fillchars = [[eob: ,fold: ,foldopen: ,foldsep: ,foldclose: ]]
+
+				-- ============================================================
+				-- 辅助函数：折叠指定级别的所有标题
+				-- @param level: 标题级别（1-6）
+				--
+				-- 工作原理：
+				-- 1. 从文件开头开始扫描
+				-- 2. 查找匹配 "^#{level} " 模式的行（如 "## " 表示 2 级标题）
+				-- 3. 如果该行有折叠且未折叠，则折叠它
+				-- ============================================================
+				local function fold_headings_of_level(level)
+					-- 移动到文件开头（不添加到跳转列表）
+					vim.cmd('keepjumps normal! gg')
+
+					-- 获取文件总行数
+					local total_lines = vim.fn.line('$')
+
+					-- 遍历所有行
+					for line = 1, total_lines do
+						-- 获取当前行内容
+						local line_content = vim.fn.getline(line)
+
+						-- 检查是否是指定级别的标题
+						-- 模式解释：
+						-- "^" - 行首
+						-- string.rep("#", level) - level 个 # 字符
+						-- "%s" - 后面跟着空白字符
+						if line_content:match('^' .. string.rep('#', level) .. '%s') then
+							-- 移动光标到该行
+							vim.cmd(string.format('keepjumps call cursor(%d, 1)', line))
+
+							-- 检查该行是否有折叠
+							local current_foldlevel = vim.fn.foldlevel(line)
+							if current_foldlevel > 0 then
+								-- 如果折叠是打开的，则关闭它
+								if vim.fn.foldclosed(line) == -1 then
+									vim.cmd('normal! za')
+								end
+							end
+						end
+					end
+				end
+
+				-- ============================================================
+				-- 辅助函数：折叠多个级别的 Markdown 标题
+				-- @param levels: 级别数组，如 {6, 5, 4, 3, 2}
+				--
+				-- 注意：从高级别到低级别折叠，确保嵌套折叠正确
+				-- ============================================================
+				local function fold_markdown_headings(levels)
+					-- 保存当前视图（光标位置、滚动位置等）
+					local saved_view = vim.fn.winsaveview()
+
+					-- 按级别依次折叠
+					for _, level in ipairs(levels) do
+						fold_headings_of_level(level)
+					end
+
+					-- 清除搜索高亮
+					vim.cmd('nohlsearch')
+
+					-- 恢复视图
+					vim.fn.winrestview(saved_view)
+				end
+
+				-- ============================================================
+				-- 快捷键：zM - 折叠所有 2 级及以上的标题
+				-- ============================================================
+				-- 功能说明：
+				-- 重新加载文件并折叠所有 ## 到 ###### 的标题
+				-- 这样可以快速获得文档的概览视图
+				--
+				-- 工作流程：
+				-- 1. 保存文件（如果有修改）
+				-- 2. 重新加载文件（刷新折叠）
+				-- 3. 先展开所有折叠
+				-- 4. 从 6 级到 2 级依次折叠
+				-- 5. 将当前行居中显示
+				-- ============================================================
+				vim.keymap.set('n', 'zM', function()
+					-- 保存文件（仅在修改后）
+					vim.cmd('silent update')
+
+					-- 重新加载文件以刷新折叠
+					vim.cmd('edit!')
+
+					-- 先展开所有折叠
+					vim.cmd('normal! zR')
+
+					-- 从高级别到低级别折叠（6 → 2）
+					-- 不折叠 1 级标题，通常是文档标题
+					fold_markdown_headings({ 6, 5, 4, 3, 2 })
+
+					-- 将当前行居中显示
+					vim.cmd('normal! zz')
+				end, { buffer = true, desc = 'Fold all headings level 2 and above' })
+
+			end,  -- end of FileType autocmd callback
+		})
+	end,  -- end of config function
+}
+
